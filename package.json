@@ -1,5 +1,5 @@
 {
-  "name": "catchphrase-rest-api",
+  "name": "kopitiam-testing",
   "version": "1.0.0",
   "description": "An API built with Express and MongoDB. Documented with Swagger.",
   "main": "server.js",
@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^5.13.21",
     "swagger-jsdoc": "^6.0.0",
     "swagger-ui-express": "^4.6.3"

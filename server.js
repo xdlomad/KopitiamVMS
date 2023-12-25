@@ -45,6 +45,7 @@ app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 async function run(){
 	try {
 		await connectDb();
+		app.use(express.json());
 		app.listen(process.env.PORT || 5000, () => console.log('ITS ALIVE!!'));
 	}catch(err){
 		console.log(err);

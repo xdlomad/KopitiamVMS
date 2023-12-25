@@ -1,17 +1,14 @@
 
-# Catchphrase Express and MongoDB REST API
+# Emerald Visitor Management System
 
 An API built with Express and MongoDB. Documented with Swagger.
 
-Tutorial available at: [dev.to](https://dev.to/mikefmeyer/build-a-node-js-express-rest-api-with-mongodb-and-swagger-3de9)
-
-
 ## API Usage
 
-#### Get all catchphrases
+#### GET all visitors
 
 ```http
-  GET /catchphrases
+  GET /visitors
 ```
 
 | Optional Parameter | Type     | Description                                        | Example       |
