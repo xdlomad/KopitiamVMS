@@ -5,7 +5,6 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const app = express();
-connectDb();
 
 app.use(express.json());
 
@@ -43,5 +42,13 @@ app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 
+async function run(){
+	try {
+		await connectDb();
+		app.listen(process.env.PORT || 5000, () => console.log('ITS ALIVE!!'));
+	}catch(err){
+		console.log(err);
+	}
+};
 
-app.listen(process.env.PORT || 5000, () => console.log('ITS ALIVE!!'));
+run();
