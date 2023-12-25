@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const connectDB = async () => {
 	try {
-		const conn = await mongoose.connect(process.env.MONGO_URI, {
+		const conn = await mongoose.connect('mongodb+srv://b022110096:l8y6PQc3ylvAL1oe@firstdatabase.3xnid7z.mongodb.net/EmeraldVMS', {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 			useFindAndModify: false,

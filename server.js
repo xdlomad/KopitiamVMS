@@ -31,7 +31,7 @@ const swaggerOptions = {
 		// },
 		// ],
 	},
-		apis: ["./routes/users.js"],
+		apis: ["./routes/users.js", "./routes/visitor.js"],
 };
   
 

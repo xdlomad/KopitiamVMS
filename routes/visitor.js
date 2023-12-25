@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 let { getAllUsers, getUserByName, addUser, updateUser, removeUser,login } = require('../controllers/usersController')
-
+let {generateToken, verifyToken} = require('../controllers/tokenAPI');
 
 /**
  * @swagger
- * /visitors/login:
+ * tags:
+  - name: Visitors
+    description: Operations related to managing visitors
+ */
+
+/**
+ * @swagger
+ * /users/login:
  *   post:
+ *     tags:
+ *     - Login
  *     parameters:
  *      - in: body
  *        name: name
@@ -24,7 +33,6 @@ let { getAllUsers, getUserByName, addUser, updateUser, removeUser,login } = requ
  */
 router.post('/login', async (req, res) => {
 	let response = await login(req.body);
-
 	if (response.success == true) {
 		res.status(201).json(response);
 	} else {
@@ -35,8 +43,12 @@ router.post('/login', async (req, res) => {
 
 /**
  * @swagger
- * /visitors:
+ * /users:
  *   get:
+ *     tags:
+ *     - Manage Users
+ *     security:
+ *     - jwtToken: []
  *     description: All users
  *     responses:
  *       200:
@@ -44,7 +56,7 @@ router.post('/login', async (req, res) => {
  *         schema:
             $ref: '#/users'
  */
-router.get('/', async (req, res) => {
+router.get('/',verifyToken, async (req, res) => {
 	let response = await getAllUsers(req.query.s, req.query.page, req.query.limit);
 	if (response.success == true) {
 		res.status(200).json(response);
@@ -55,8 +67,10 @@ router.get('/', async (req, res) => {
 
 /**
  * @swagger
- * /visitors/{name}:
+ * /users/{name}:
  *   get:
+ *     tags:
+ *     - Manage Users
  *     parameters:
  *      - in: path
  *        name: name
@@ -75,8 +89,10 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @swagger
- * /visitors/add:
+ * /users/add:
  *   post:
+ *     tags:
+ *     - Manage Users
  *     parameters:
  *      - in: body
  *        name: name
@@ -111,8 +127,10 @@ router.post('/add', async (req, res) => {
 
 /**
  * @swagger
- * /visitors/{id}:
+ * /users/update:
  *   patch:
+ *     tags:
+ *     - Manage Users
  *     parameters:
  *      - in: path
  *        name: id
@@ -135,7 +153,7 @@ router.post('/add', async (req, res) => {
  *       201:
  *         description: Created
  */
-router.put('/:id', async (req, res) => {
+router.put('/update', async (req, res) => {
 	let username = null, name = null, password = null;
 	if (req.body.username) {username = req.body.username}
 	if (req.body.name) {name = req.body.name}
@@ -151,8 +169,10 @@ router.put('/:id', async (req, res) => {
 
 /**
  * @swagger
- * /visitors/{id}:
+ * /users/{id}:
  *   delete:
+ *     tags:
+ *     - Manage Users
  *     parameters:
  *      - in: path
  *        name: id
