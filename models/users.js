@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const  Schema  = mongoose.Schema;
 
 const usersSchema = new Schema({
-	username: {
+	user_id: {
 		type: String,
 	},
 	name: {
@@ -11,7 +11,18 @@ const usersSchema = new Schema({
 	password: {
 		type: String,
 	},
+	unit: {
+		type: String,
+	},
+	hp_num: {
+		type: String,
+	},
+	role: {
+		type: String,
+	}
 });
+
+usersSchema.set('toObject', { virtuals: true })
 
 const users = mongoose.model('users', usersSchema);
 

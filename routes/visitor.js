@@ -12,41 +12,10 @@ let {generateToken, verifyToken} = require('../controllers/tokenAPI');
 
 /**
  * @swagger
- * /users/login:
- *   post:
- *     tags:
- *     - Login
- *     parameters:
- *      - in: body
- *        name: name
- *        description: Enter Login Details
- *        schema:
- *          type: object
- *          properties:
- *            username:
- *              type: string
- *            password:
- *              type: string
- *     responses:
- *       201:
- *         description: User logged in
- */
-router.post('/login', async (req, res) => {
-	let response = await login(req.body);
-	if (response.success == true) {
-		res.status(201).json(response);
-	} else {
-		res.status(404).json(response);
-	}
-});
-
-
-/**
- * @swagger
- * /users:
+ * /visitor:
  *   get:
  *     tags:
- *     - Manage Users
+ *     - Manage Visitors
  *     security:
  *     - jwtToken: []
  *     description: All users
@@ -67,10 +36,10 @@ router.get('/',verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /users/{name}:
+ * /visitor/{name}:
  *   get:
  *     tags:
- *     - Manage Users
+ *     - Manage Visitors
  *     parameters:
  *      - in: path
  *        name: name
@@ -89,10 +58,10 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @swagger
- * /users/add:
+ * /visitor/add:
  *   post:
  *     tags:
- *     - Manage Users
+ *     - Manage Visitors
  *     parameters:
  *      - in: body
  *        name: name
@@ -127,10 +96,10 @@ router.post('/add', async (req, res) => {
 
 /**
  * @swagger
- * /users/update:
+ * /visitor/update:
  *   patch:
  *     tags:
- *     - Manage Users
+ *     - Manage Visitors
  *     parameters:
  *      - in: path
  *        name: id
@@ -169,10 +138,10 @@ router.put('/update', async (req, res) => {
 
 /**
  * @swagger
- * /users/{id}:
+ * /vistor/delete/{id}:
  *   delete:
  *     tags:
- *     - Manage Users
+ *     - Manage Visitors
  *     parameters:
  *      - in: path
  *        name: id
@@ -184,7 +153,7 @@ router.put('/update', async (req, res) => {
  *       200:
  *         description: Returns the requested catachphrase
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
 	let response = await removeUser(req.params.id)
 	try {
 		res.status(200).json(response);

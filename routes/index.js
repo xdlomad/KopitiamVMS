@@ -1,8 +1,8 @@
 const usersFunction = require('./users')
 
-const visitorsFunction = require('./users')
+const visitorFunction = require('./visitor')
 
 module.exports = {
 	usersFunction,
-	visitorsFunction
+	visitorFunction
 }

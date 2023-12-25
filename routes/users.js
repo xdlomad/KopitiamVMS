@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
 let { getAllUsers, getUserByName, addUser, updateUser, removeUser,login } = require('../controllers/usersController')
-let {generateToken, verifyToken} = require('../controllers/tokenAPI');
-
-/**
- * @swagger
- * tags:
-  - name: Visitors
-    description: Operations related to managing visitors
- */
+let {generateToken, verifyToken, errorMessage} = require('../controllers/tokenAPI');
 
 /**
  * @swagger
@@ -16,14 +9,15 @@ let {generateToken, verifyToken} = require('../controllers/tokenAPI');
  *   post:
  *     tags:
  *     - Login
- *     parameters:
- *      - in: body
- *        name: name
- *        description: Enter Login Details
- *        schema:
+ *     requestBody:
+ *      description: User login information
+ *      required: true
+ *      content:
+ *        application/json:
+ *         schema:
  *          type: object
  *          properties:
- *            username:
+ *            user_id:
  *              type: string
  *            password:
  *              type: string
@@ -32,18 +26,22 @@ let {generateToken, verifyToken} = require('../controllers/tokenAPI');
  *         description: User logged in
  */
 router.post('/login', async (req, res) => {
-	let response = await login(req.body);
-	if (response.success == true) {
-		res.status(201).json(response);
-	} else {
-		res.status(404).json(response);
-	}
-});
-
+    let data = req.body
+    let result = await login(data);
+    const loginuser = result.verify
+    const token = result.token
+    //check the returned result if its a object, only then can we welcome the user
+    if (typeof loginuser == "object") { 
+		res.status(200).send( "Welcome " + loginuser.name +"! Have a nice day" + "\nYour token : " + token);
+    }else {
+      //else send the failure message
+      res.send(errorMessage() + result)
+    }
+  });
 
 /**
  * @swagger
- * /users:
+ * /users/listUsers:
  *   get:
  *     tags:
  *     - Manage Users
@@ -56,7 +54,7 @@ router.post('/login', async (req, res) => {
  *         schema:
             $ref: '#/users'
  */
-router.get('/',verifyToken, async (req, res) => {
+router.get('/listUsers',verifyToken, async (req, res) => {
 	let response = await getAllUsers(req.query.s, req.query.page, req.query.limit);
 	if (response.success == true) {
 		res.status(200).json(response);
@@ -67,10 +65,12 @@ router.get('/',verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /users/{name}:
+ * /users/search/{name}:
  *   get:
  *     tags:
  *     - Manage Users
+ *     security:
+ *     - jwtToken: []
  *     parameters:
  *      - in: path
  *        name: name
@@ -82,7 +82,7 @@ router.get('/',verifyToken, async (req, res) => {
  *       200:
  *         description: Returns the requested name
  */
-router.get('/:id', async (req, res) => {
+router.get('/search/:id',verifyToken, async (req, res) => {
 	let response = await getUserByName(req.params.name);
 	res.json(response);
 });
@@ -93,37 +93,50 @@ router.get('/:id', async (req, res) => {
  *   post:
  *     tags:
  *     - Manage Users
- *     parameters:
- *      - in: body
- *        name: name
- *        description: New name
- *        schema:
+ *     security:
+ *     - jwtToken: []
+ *     requestBody:
+ *      description: User login information
+ *      required: true
+ *      content:
+ *        application/json:
+ *         schema:
  *          type: object
  *          properties:
- *            username:
+ *            user_id:
+ *              type: string
+ *            password:
  *              type: string
  *            name:
  *              type: string
- *            password:
+ *            unit:
+ *              type: string
+ *            hp_num:
+ *              type: string
+ *            role:
  *              type: string
  *     responses:
  *       201:
  *         description: Created
  */
-router.post('/add', async (req, res) => {
-	let body = {
-		username: req.body.username,
-		name: req.body.name,
-		password: req.body.password,
-	};
-	let response = await addUser(body);
-
-	if (response.success == true) {
-		res.status(201).json(response);
-	} else {
-		res.status(404).json(response);
-	}
-});
+router.post('/add',verifyToken, async (req, res) => {
+	let authorize = req.user.role //reading the token for authorisation
+	let data = req.body //requesting the data from body
+	//checking the role of user
+	if (authorize == "security" || authorize == "resident"){
+	  res.send("you do not have access to registering users!")
+	}else if (authorize == "admin" ){
+	  const newUser = await addUser(data)
+	  if (newUser){ //checking is registration is succesful
+		res.status(201).send("Registration request processed, new user is " + newUser.name)
+	  }else{
+		res.send("User already exists!")
+	  }
+	//token does not exist
+	}else {
+		res.send("Token not valid!")
+	  }
+	});
 
 /**
  * @swagger
@@ -131,48 +144,58 @@ router.post('/add', async (req, res) => {
  *   patch:
  *     tags:
  *     - Manage Users
- *     parameters:
- *      - in: path
- *        name: id
- *        required: true
- *        type: string
- *        description: The name ID.
- *      - in: body
- *        name: name
- *        description: Update name
- *        schema:
+ *     security:
+ *     - jwtToken: []
+ *     requestBody:
+ *      description: User login information
+ *      required: true
+ *      content:
+ *        application/json:
+ *         schema:
  *          type: object
  *          properties:
- *            username:
+ *            user_id:
+ *              type: string
+ *            password:
  *              type: string
  *            name:
  *              type: string
- *            password:
+ *            unit:
+ *              type: string
+ *            hp_num:
+ *              type: string
+ *            role:
  *              type: string
  *     responses:
  *       201:
  *         description: Created
  */
-router.put('/update', async (req, res) => {
-	let username = null, name = null, password = null;
-	if (req.body.username) {username = req.body.username}
-	if (req.body.name) {name = req.body.name}
-	if (req.body.password) {password = req.body.password}
-	let response = await updateUser(req.params.id, username, name, password);
-
-	if (response.success == true) {
-		res.status(201).json(response);
-	} else {
-		res.status(404).json(response);
-	}
-});
+router.put('/update',verifyToken, async (req, res) => {
+	let authorize = req.user.role //reading the token for authorisation
+	let data = req.body //requesting the data from body
+	//checking the role of user
+	if (authorize == "security" || authorize == "resident"){
+	  res.send("you do not have access to update user information!")
+	}else if (authorize == "admin" ){
+	  const result = await updateUser(data)
+	  if (result){ // checking if the user exist and updated
+		res.send("User updated! " + result.value.name)
+	  }else{
+		res.send(errorMessage() + "User does not exist!")
+	  }
+	}else {
+		res.send(errorMessage() + "Token is not found!")
+	  }
+  });
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/delete/{id}:
  *   delete:
  *     tags:
  *     - Manage Users
+ *     security:
+ *     - jwtToken: []
  *     parameters:
  *      - in: path
  *        name: id
@@ -184,7 +207,7 @@ router.put('/update', async (req, res) => {
  *       200:
  *         description: Returns the requested catachphrase
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id',verifyToken, async (req, res) => {
 	let response = await removeUser(req.params.id)
 	try {
 		res.status(200).json(response);

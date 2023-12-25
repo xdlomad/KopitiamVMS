@@ -1,6 +1,6 @@
 const express = require('express');
 const connectDb = require("./config/db");
-const { usersFunction } = require("./routes/index");
+const { usersFunction, visitorFunction} = require("./routes/index");
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -36,6 +36,7 @@ const swaggerOptions = {
   
 
 app.use('/users', usersFunction)
+app.use('/visitor', visitorFunction)
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

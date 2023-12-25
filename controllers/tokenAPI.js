@@ -23,7 +23,30 @@ function generateToken(loginProfile){
     });
   }
 
+  
+//error message generator
+function errorMessage(){
+  const x = Math.floor(Math.random()*6)
+  if (x == 0){
+    return ("Oopsie Daisy\n")
+  }else if (x == 1){
+    return ("Error! Error! Error!\n")
+  }else if (x==2){
+    return ("I can accept failure. Everyone fails at something. But I can't accept not trying. ― Michael Jordan\n")
+  }else if (x==3){
+    return ("Waoh how did you even get an error here?\n")
+  }else if (x==4){
+    return ("Something went wrong! FeelsBadMan\n")
+  }else if (x==5){
+    return ("Hi, I'm Error Man , I'm here to tell you\n")
+  }else{
+    return ("Oi bo- Sir/Madam, we seem to have an error\n")
+  }
+}
+
+
   module.exports = {
     generateToken,
-    verifyToken
+    verifyToken,
+    errorMessage
 }
